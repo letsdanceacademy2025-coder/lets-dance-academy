@@ -21,7 +21,7 @@ export default function Footer() {
                     </div>
 
                     <div>
-                        <h3 className="text-sm font-black uppercase tracking-widest mb-6 text-gray-900">Programs</h3>
+                        <h3 className="text-sm font-black uppercase tracking-widest mb-6 text-gray-900">Links</h3>
                         <ul className="space-y-4">
                             <li>
                                 <Link href="/batches" className="text-gray-600 hover:text-blue-600 transition-colors text-sm font-medium">
@@ -60,7 +60,7 @@ export default function Footer() {
                                 </Link>
                             </li>
                             <li>
-                                <Link href="mailto:letsdanceacademy5678@gmail.com" className="text-gray-600 hover:text-blue-600 transition-colors text-sm font-medium">
+                                <Link href="/contact" className="text-gray-600 hover:text-blue-600 transition-colors text-sm font-medium">
                                     Contact Us
                                 </Link>
                             </li>
