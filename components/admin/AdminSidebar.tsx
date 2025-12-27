@@ -24,7 +24,7 @@ const menuItems = [
     { icon: FaUserGroup, label: 'Students', href: '/admin/students' },
     { icon: FaCalendarCheck, label: 'Attendance', href: '/admin/attendance' },
     { icon: FaMoneyBillWave, label: 'Payments & Dues', href: '/admin/payments' },
-    { icon: FaLayerGroup, label: 'Courses & Batches', href: '/admin/courses' },
+    { icon: FaLayerGroup, label: 'Courses & Batches', href: '/admin/batches' },
     { icon: FaBullhorn, label: 'Promo Banners', href: '/admin/banners' },
     // { icon: FaImages, label: 'Content', href: '/admin/content' },
     { icon: FaUserShield, label: 'Manage Admins', href: '/admin/admins' },

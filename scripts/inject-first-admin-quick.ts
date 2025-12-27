@@ -5,6 +5,10 @@
  * Edit the ADMIN_DATA object below with your desired admin credentials
  */
 
+import { loadEnvConfig } from '@next/env';
+
+loadEnvConfig(process.cwd());
+
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 
@@ -19,7 +23,7 @@ const ADMIN_DATA = {
 };
 // ============================================
 
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://digicraftone_db_user:KefZwXEoXtWCRAFh@cluster0.grmtkyj.mongodb.net/tesing';
+const MONGODB_URI = process.env.MONGODB_URI;
 
 // Admin Schema
 const AdminSchema = new mongoose.Schema(
@@ -56,6 +60,9 @@ async function injectFirstAdmin() {
 
         // Connect to MongoDB
         console.log('📡 Connecting to MongoDB...');
+        if (!MONGODB_URI) {
+            throw new Error('MONGODB_URI is missing in environment variables');
+        }
         await mongoose.connect(MONGODB_URI);
         console.log('✅ Connected to MongoDB successfully!\n');
 

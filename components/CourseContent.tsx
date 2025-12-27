@@ -1,6 +1,7 @@
-
 "use client";
-import { useState } from 'react';
+import React, { useState } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
+import { useRouter } from 'next/navigation';
 
 type SyllabusTopic = {
     title: string;
@@ -8,7 +9,7 @@ type SyllabusTopic = {
 };
 
 type Notification = {
-    id: number;
+    id: number | string;
     title: string;
     message: string;
     date: string;
@@ -16,17 +17,37 @@ type Notification = {
 };
 
 type Review = {
-    id: number;
+    id: number | string;
+    userId?: string;
     user: string;
+    userImage?: string;
     rating: number;
     comment: string;
     date: string;
 };
 
-export default function CourseContent({ syllabus, isPurchased = false, notifications = [], reviews = [] }: { syllabus: SyllabusTopic[], isPurchased?: boolean, notifications?: Notification[], reviews?: Review[] }) {
+interface CourseContentProps {
+    batchId?: string;
+    syllabus: SyllabusTopic[];
+    isPurchased?: boolean;
+    notifications?: Notification[];
+    reviews?: Review[];
+}
+
+export default function CourseContent({ batchId, syllabus, isPurchased = false, notifications = [], reviews = [] }: CourseContentProps) {
+    const { token, user } = useAuth();
+    const router = useRouter();
+
     const [activeTab, setActiveTab] = useState<'content' | 'notifications' | 'reviews'>('content');
     const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
     const [expandedModules, setExpandedModules] = useState<number[]>([]);
+
+    // Review State
+    const [isWritingReview, setIsWritingReview] = useState(false);
+    const [isEditing, setIsEditing] = useState(false);
+    const [editingReviewId, setEditingReviewId] = useState<string | number | null>(null);
+    const [reviewForm, setReviewForm] = useState({ rating: 5, comment: '' });
+    const [submittingReview, setSubmittingReview] = useState(false);
 
     // Mock video URL
     const demoVideoUrl = "https://www.youtube.com/embed/dQw4w9WgXcQ?rel=0&modestbranding=1&iv_load_policy=3";
@@ -47,25 +68,77 @@ export default function CourseContent({ syllabus, isPurchased = false, notificat
         );
     };
 
+    const handleEditReview = (review: Review) => {
+        setReviewForm({ rating: review.rating, comment: review.comment });
+        setEditingReviewId(review.id);
+        setIsWritingReview(true);
+        setIsEditing(true);
+        // Scroll to form logic could be added here
+    };
+
+    const handleCancelReview = () => {
+        setIsWritingReview(false);
+        setIsEditing(false);
+        setEditingReviewId(null);
+        setReviewForm({ rating: 5, comment: '' });
+    };
+
+    const submitReview = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!token) {
+            alert("Please login to submit a review.");
+            return;
+        }
+        if (!batchId) return;
+
+        setSubmittingReview(true);
+        try {
+            const method = isEditing ? 'PATCH' : 'POST';
+            const body = isEditing ? { ...reviewForm, reviewId: editingReviewId } : reviewForm;
+
+            const res = await fetch(`/api/batches/${batchId}/reviews`, {
+                method,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(body)
+            });
+            const data = await res.json();
+            if (data.success) {
+                alert(isEditing ? "Review updated successfully!" : "Review submitted successfully!");
+                handleCancelReview();
+                router.refresh();
+            } else {
+                alert(data.message);
+            }
+        } catch (error) {
+            console.error(error);
+            alert("Failed to submit review");
+        } finally {
+            setSubmittingReview(false);
+        }
+    };
+
     return (
         <div className="bg-white">
             {/* Tabs Navigation */}
-            <div className="flex border-b border-gray-200 mb-8">
+            <div className="flex border-b border-gray-200 mb-8 overflow-x-auto">
                 <button
                     onClick={() => setActiveTab('content')}
-                    className={`px-8 py-4 text-sm font-bold uppercase tracking-widest transition-colors border-b-2 ${activeTab === 'content' ? 'border-blue-600 text-black' : 'border-transparent text-gray-400 hover:text-black'}`}
+                    className={`px-8 py-4 text-sm font-bold uppercase tracking-widest transition-colors border-b-2 whitespace-nowrap ${activeTab === 'content' ? 'border-blue-600 text-black' : 'border-transparent text-gray-400 hover:text-black'}`}
                 >
                     Course Content
                 </button>
                 <button
                     onClick={() => setActiveTab('notifications')}
-                    className={`px-8 py-4 text-sm font-bold uppercase tracking-widest transition-colors border-b-2 ${activeTab === 'notifications' ? 'border-blue-600 text-black' : 'border-transparent text-gray-400 hover:text-black'}`}
+                    className={`px-8 py-4 text-sm font-bold uppercase tracking-widest transition-colors border-b-2 whitespace-nowrap ${activeTab === 'notifications' ? 'border-blue-600 text-black' : 'border-transparent text-gray-400 hover:text-black'}`}
                 >
                     Notifications {notifications.length > 0 && <span className="bg-red-500 text-white text-[10px] px-1.5 rounded-full ml-1 align-top">{notifications.length}</span>}
                 </button>
                 <button
                     onClick={() => setActiveTab('reviews')}
-                    className={`px-8 py-4 text-sm font-bold uppercase tracking-widest transition-colors border-b-2 ${activeTab === 'reviews' ? 'border-blue-600 text-black' : 'border-transparent text-gray-400 hover:text-black'}`}
+                    className={`px-8 py-4 text-sm font-bold uppercase tracking-widest transition-colors border-b-2 whitespace-nowrap ${activeTab === 'reviews' ? 'border-blue-600 text-black' : 'border-transparent text-gray-400 hover:text-black'}`}
                 >
                     Reviews ({reviews.length})
                 </button>
@@ -179,22 +252,89 @@ export default function CourseContent({ syllabus, isPurchased = false, notificat
                 <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
                     <div className="flex items-center justify-between mb-8">
                         <h2 className="text-3xl font-black uppercase tracking-tighter">Student Reviews</h2>
-                        <button className="text-sm font-bold text-blue-600 hover:text-black transition-colors uppercase tracking-widest border-b-2 border-blue-600 hover:border-black pb-1">
-                            Write a Review
-                        </button>
+
+                        {!isWritingReview && (
+                            <button
+                                onClick={() => setIsWritingReview(true)}
+                                className="text-sm font-bold text-blue-600 hover:text-black transition-colors uppercase tracking-widest border-b-2 border-blue-600 hover:border-black pb-1"
+                            >
+                                Write a Review
+                            </button>
+                        )}
                     </div>
 
+                    {isWritingReview && (
+                        <div className="bg-gray-50 border border-gray-200 p-8 mb-8 animate-in slide-in-from-top-4 duration-300">
+                            <h3 className="font-bold uppercase mb-4">{isEditing ? 'Update Review' : 'Leave your feedback'}</h3>
+                            <form onSubmit={submitReview} className="space-y-4">
+                                <div>
+                                    <label className="block text-xs font-bold uppercase text-gray-500 mb-1">Rating</label>
+                                    <div className="flex gap-2">
+                                        {[1, 2, 3, 4, 5].map(star => (
+                                            <button
+                                                key={star}
+                                                type="button"
+                                                onClick={() => setReviewForm(p => ({ ...p, rating: star }))}
+                                                className={`text-2xl ${star <= reviewForm.rating ? 'text-yellow-500' : 'text-gray-300'}`}
+                                            >
+                                                ★
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-bold uppercase text-gray-500 mb-1">Comment</label>
+                                    <textarea
+                                        className="w-full border p-3 text-sm focus:outline-none focus:border-black"
+                                        rows={4}
+                                        value={reviewForm.comment}
+                                        onChange={e => setReviewForm(p => ({ ...p, comment: e.target.value }))}
+                                        placeholder="Share your experience..."
+                                        required
+                                    ></textarea>
+                                </div>
+                                <div className="flex gap-4">
+                                    <button
+                                        type="submit"
+                                        disabled={submittingReview}
+                                        className="bg-black text-white px-6 py-3 font-bold uppercase text-xs tracking-wide hover:bg-gray-800 disabled:opacity-50"
+                                    >
+                                        {submittingReview ? 'Saving...' : (isEditing ? 'Update Review' : 'Submit Review')}
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={handleCancelReview}
+                                        className="text-gray-500 font-bold uppercase text-xs tracking-wide hover:text-black"
+                                    >
+                                        Cancel
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    )}
+
                     <div className="grid grid-cols-1 gap-6">
-                        {reviews.map((review) => (
-                            <div key={review.id} className="border border-gray-200 p-8 bg-gray-50 hover:border-blue-600 transition-colors">
+                        {reviews.length > 0 ? reviews.map((review) => (
+                            <div key={review.id} className={`border p-8 transition-colors ${review.userId === user?.id ? 'bg-blue-50 border-blue-200' : 'bg-gray-50 border-gray-200 hover:border-blue-600'}`}>
                                 <div className="flex justify-between items-start mb-4">
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center font-bold text-gray-500">
-                                            {review.user.charAt(0)}
-                                        </div>
+                                    <div className="flex items-center gap-4">
+                                        {/* User Image */}
+                                        {review.userImage ? (
+                                            <div className="w-10 h-10 rounded-full overflow-hidden border border-gray-200">
+                                                <img src={review.userImage} alt={review.user} className="w-full h-full object-cover" />
+                                            </div>
+                                        ) : (
+                                            <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center font-bold text-gray-500 uppercase">
+                                                {review.user?.charAt(0) || 'U'}
+                                            </div>
+                                        )}
+
                                         <div>
-                                            <h4 className="font-bold text-sm uppercase">{review.user}</h4>
-                                            <div className="flex text-yellow-500 text-xs">
+                                            <div className="flex items-center gap-2">
+                                                <h4 className="font-bold text-sm uppercase">{review.user || 'Unknown User'}</h4>
+                                                {review.userId === user?.id && <button onClick={() => handleEditReview(review)} className="text-[10px] bg-blue-100 text-blue-700 px-2 py-0.5 rounded font-bold uppercase hover:bg-blue-200 transition-colors">Edit</button>}
+                                            </div>
+                                            <div className="flex text-yellow-500 text-xs mt-1">
                                                 {[...Array(5)].map((_, i) => (
                                                     <span key={i}>{i < review.rating ? '★' : '☆'}</span>
                                                 ))}
@@ -205,7 +345,9 @@ export default function CourseContent({ syllabus, isPurchased = false, notificat
                                 </div>
                                 <p className="text-gray-600 text-sm leading-relaxed italic">"{review.comment}"</p>
                             </div>
-                        ))}
+                        )) : (
+                            <p className="text-gray-500 italic">No reviews yet. Be the first to review!</p>
+                        )}
                     </div>
                 </div>
             )}
