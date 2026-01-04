@@ -26,7 +26,7 @@ export default function InfiniteMarquee() {
                     {images.map((src, index) => (
                         <div
                             key={`set1-${index}`}
-                            className="relative w-[300px] h-[200px] shrink-0 grayscale hover:grayscale-0 transition-all duration-500 hover:scale-105 cursor-pointer rounded-lg overflow-hidden border border-gray-800"
+                            className="relative w-[300px] h-[200px] shrink-0 transition-all duration-500 hover:scale-105 cursor-pointer rounded-lg overflow-hidden border border-gray-800"
                         >
                             <Image
                                 src={src}
@@ -35,7 +35,7 @@ export default function InfiniteMarquee() {
                                 sizes="(max-width: 768px) 300px, 400px"
                                 className="object-cover"
                             />
-                            <div className="absolute inset-0 bg-black/20 hover:bg-transparent transition-colors" />
+                            {/* <div className="absolute inset-0 bg-black/20 hover:bg-transparent transition-colors" /> */}
                         </div>
                     ))}
 
