@@ -8,6 +8,7 @@ import Image from 'next/image';
 import connectDB from '@/lib/db';
 import GalleryFolder from '@/models/Gallery';
 import { FaMusic, FaVideo, FaHeart, FaBriefcase, FaTrophy } from 'react-icons/fa6';
+import InfiniteMarquee from '@/components/InfiniteMarquee';
 
 export default async function Home() {
   await connectDB();
@@ -66,6 +67,8 @@ export default async function Home() {
         </section>
 
         <PromoBanner />
+
+        <InfiniteMarquee />
 
         {/* BENTO GRID SECTION - Short preview still good on home */}
         <section className="py-24 bg-gray-50 border-t border-gray-200">
