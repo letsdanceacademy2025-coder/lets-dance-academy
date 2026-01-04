@@ -146,18 +146,6 @@ export default function Footer() {
                             </Link>
                         </div>
                     </div>
-
-
-                    {/* Design Credit & Advertisement - Combined */}
-                    <div className="text-center pt-4 border-t border-gray-100">
-                        <p className="text-gray-400 text-xs uppercase tracking-widest leading-relaxed">
-                            Designed and maintained by <a href="https://digicraft.one" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-blue-600 transition-colors font-bold">DigiCraft</a>
-                            <span className="mx-3 text-gray-300">•</span>
-                            Need a website? <a href="https://digicraft.one" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-blue-400 transition-colors font-semibold">Visit us</a> or explore <a href="https://marketplace.digicraft.one" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-blue-400 transition-colors font-semibold">pre-built templates</a>
-                            <span className="mx-3 text-gray-300">•</span>
-                            Call <a href="tel:+918299797516" className="text-gray-400 hover:text-blue-400 transition-colors font-semibold">8299797516</a>
-                        </p>
-                    </div>
                 </div>
             </div>
         </footer>
