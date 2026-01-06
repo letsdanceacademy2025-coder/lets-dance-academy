@@ -14,15 +14,15 @@ export async function POST(req: NextRequest) {
         const decoded = verifyToken(token);
         if (!decoded || !decoded.id) return NextResponse.json({ success: false, message: 'Invalid session' }, { status: 401 });
 
-        const { batchId, workshopId, branch, screenshot, utrNumber } = await req.json();
+        const { batchId, workshopId, branch, utrNumber } = await req.json();
 
         // Validate: must have either batchId or workshopId, but not both
         if ((!batchId && !workshopId) || (batchId && workshopId)) {
             return NextResponse.json({ success: false, message: 'Must specify either batchId or workshopId' }, { status: 400 });
         }
 
-        if (!branch || !screenshot || !utrNumber) {
-            return NextResponse.json({ success: false, message: 'Missing required fields (branch, screenshot, or UTR number)' }, { status: 400 });
+        if (!branch || !utrNumber) {
+            return NextResponse.json({ success: false, message: 'Missing required fields (branch or UTR number)' }, { status: 400 });
         }
 
         const user = await User.findById(decoded.id);
@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
             userEmail: user.email,
             userPhone: user.phone || '',
             branch,
-            screenshot,
+
             utrNumber,
             status: 'pending',
             paymentDate: new Date()

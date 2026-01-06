@@ -11,7 +11,7 @@ export interface IEnrollment extends Document {
     workshop?: mongoose.Types.ObjectId;
     workshopTitle?: string;
     branch: string;
-    screenshot: string;
+
     utrNumber: string;
     status: 'pending' | 'active' | 'expired' | 'rejected';
     type: 'one-time' | 'recurring';
@@ -32,7 +32,7 @@ const EnrollmentSchema = new Schema<IEnrollment>({
     workshop: { type: Schema.Types.ObjectId, ref: 'Workshop' },
     workshopTitle: { type: String },
     branch: { type: String, required: true },
-    screenshot: { type: String, required: true },
+
     utrNumber: { type: String, required: true },
     status: {
         type: String,

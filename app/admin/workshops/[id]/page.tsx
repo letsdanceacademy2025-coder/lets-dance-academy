@@ -311,7 +311,7 @@ export default function ViewWorkshopPage() {
                                                 <th className="py-4 font-bold">Registered</th>
                                                 <th className="py-4 font-bold">Payment</th>
                                                 <th className="py-4 font-bold">UTR Number</th>
-                                                <th className="py-4 font-bold">Screenshot</th>
+
                                                 <th className="py-4 font-bold">Status</th>
                                                 <th className="py-4 font-bold text-right">Actions</th>
                                             </tr>
@@ -332,16 +332,7 @@ export default function ViewWorkshopPage() {
                                                     <td className="py-4">
                                                         <div className="font-mono text-xs font-bold text-gray-700">{enr.utrNumber || '-'}</div>
                                                     </td>
-                                                    <td className="py-4">
-                                                        <a
-                                                            href={enr.screenshot}
-                                                            target="_blank"
-                                                            rel="noreferrer"
-                                                            className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-800 font-bold text-xs uppercase"
-                                                        >
-                                                            View <FaExternalLinkAlt size={10} />
-                                                        </a>
-                                                    </td>
+
                                                     <td className="py-4">
                                                         <span className={`px-2 py-1 rounded text-xs uppercase font-bold tracking-wide ${enr.status === 'active' ? 'bg-green-100 text-green-700' :
                                                             enr.status === 'pending' ? 'bg-yellow-100 text-yellow-700' :

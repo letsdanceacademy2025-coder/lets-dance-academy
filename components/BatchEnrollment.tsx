@@ -1,11 +1,10 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
-import Link from 'next/link';
-import { FaLocationDot, FaCheck, FaXmark, FaUpload, FaArrowRight } from 'react-icons/fa6';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { FaArrowRight, FaCheck, FaXmark } from 'react-icons/fa6';
 
 const branches = [
     {
@@ -26,9 +25,7 @@ export default function BatchEnrollment({ batchId, price, pricingType }: { batch
     const [isOpen, setIsOpen] = useState(false);
     const [step, setStep] = useState(1);
     const [selectedBranch, setSelectedBranch] = useState(branches[0]);
-    const [screenshot, setScreenshot] = useState('');
     const [utrNumber, setUtrNumber] = useState('');
-    const [uploading, setUploading] = useState(false);
     const [submitting, setSubmitting] = useState(false);
 
     // Enrollment Status State
@@ -69,33 +66,7 @@ export default function BatchEnrollment({ batchId, price, pricingType }: { batch
         };
     }, [isOpen]);
 
-    const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (!file) return;
-        setUploading(true);
-        const formData = new FormData();
-        formData.append('file', file);
-        try {
-            const res = await fetch('/api/upload', {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                },
-                body: formData
-            });
-            const data = await res.json();
-            if (data.success) {
-                setScreenshot(data.data.url);
-            } else {
-                alert('Upload failed: ' + data.message);
-            }
-        } catch (err) {
-            console.error(err);
-            alert('Upload failed');
-        } finally {
-            setUploading(false);
-        }
-    };
+
 
     const handleSubmit = async () => {
         if (!token) {
@@ -107,7 +78,7 @@ export default function BatchEnrollment({ batchId, price, pricingType }: { batch
             const res = await fetch('/api/enrollments', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-                body: JSON.stringify({ batchId, branch: selectedBranch.id, screenshot, utrNumber })
+                body: JSON.stringify({ batchId, branch: selectedBranch.id, utrNumber })
             });
             const data = await res.json();
             if (data.success) {
@@ -240,33 +211,10 @@ export default function BatchEnrollment({ batchId, price, pricingType }: { batch
                             </div>
                         )}
 
-                        {/* STEP 3: UPLOAD SCREENSHOT */}
+                        {/* STEP 3: CONFIRMATION & UTR */}
                         {step === 3 && (
                             <div className="space-y-6 mb-8">
-                                <p className="text-gray-600 text-sm">Please upload a screenshot of your payment for verification.</p>
-
-                                <div className="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center bg-gray-50 hover:bg-gray-100 transition-colors relative cursor-pointer">
-                                    <input
-                                        type="file"
-                                        accept="image/*"
-                                        onChange={handleUpload}
-                                        className="absolute inset-0 opacity-0 cursor-pointer z-10"
-                                        disabled={uploading}
-                                    />
-                                    {screenshot ? (
-                                        <div className="relative h-48 mx-auto">
-                                            <img src={screenshot} alt="Payment" className="h-full mx-auto object-contain rounded shadow-sm" />
-                                            <div className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 hover:opacity-100 transition-opacity text-white font-bold text-xs uppercase pointer-events-none">
-                                                Click to Change Image
-                                            </div>
-                                        </div>
-                                    ) : (
-                                        <div className="flex flex-col items-center gap-2 text-gray-500 pointer-events-none">
-                                            {uploading ? <div className="animate-spin w-8 h-8 border-4 border-gray-300 border-t-blue-600 rounded-full"></div> : <FaUpload size={32} />}
-                                            <span className="font-bold uppercase text-xs tracking-widest">{uploading ? 'Uploading...' : 'Click to Upload Screenshot'}</span>
-                                        </div>
-                                    )}
-                                </div>
+                                <p className="text-gray-600 text-sm">Please enter the UTR/Reference number from your payment confirmation.</p>
 
                                 <div>
                                     <label className="block text-xs font-bold uppercase tracking-widest text-gray-500 mb-2">
@@ -285,7 +233,7 @@ export default function BatchEnrollment({ batchId, price, pricingType }: { batch
 
                                 <button
                                     onClick={handleSubmit}
-                                    disabled={!screenshot || !utrNumber || submitting}
+                                    disabled={!utrNumber || submitting}
                                     className={`w-full bg-black text-white px-8 py-4 text-sm font-bold uppercase tracking-widest hover:bg-green-600 transition-colors rounded-lg flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed`}
                                 >
                                     {submitting ? 'Submitting...' : 'Submit Enrollment'}
