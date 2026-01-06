@@ -125,9 +125,6 @@ export default function AdminDashboard() {
                     <p className="text-gray-500 font-medium mt-1">Welcome back, Admin. Here's what's happening today.</p>
                 </div>
                 <div className="flex gap-3">
-                    <button className="bg-white border border-gray-200 text-black px-4 py-2 text-xs font-bold uppercase tracking-wide hover:bg-gray-50 transition-colors">
-                        Download Report
-                    </button>
                     <a href="/admin/students" className="bg-black text-white px-4 py-2 text-xs font-bold uppercase tracking-wide hover:bg-blue-600 transition-colors flex items-center gap-2">
                         + New Student
                     </a>
