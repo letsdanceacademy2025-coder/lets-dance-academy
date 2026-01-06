@@ -2,62 +2,62 @@ const BREVO_API_KEY = process.env.BREVO_API_KEY || '';
 const SENDER_EMAIL = process.env.SENDER_EMAIL || '';
 
 interface SendEmailParams {
-    to: string;
-    subject: string;
-    htmlContent: string;
-    textContent?: string;
+  to: string;
+  subject: string;
+  htmlContent: string;
+  textContent?: string;
 }
 
 export async function sendEmail({ to, subject, htmlContent, textContent }: SendEmailParams): Promise<boolean> {
-    try {
-        if (!BREVO_API_KEY) {
-            throw new Error('BREVO_API_KEY is not defined');
-        }
-
-        const response = await fetch('https://api.brevo.com/v3/smtp/email', {
-            method: 'POST',
-            headers: {
-                'accept': 'application/json',
-                'api-key': BREVO_API_KEY,
-                'content-type': 'application/json',
-            },
-            body: JSON.stringify({
-                sender: {
-                    email: SENDER_EMAIL,
-                    name: "Let's Dance Academy",
-                },
-                to: [
-                    {
-                        email: to,
-                    },
-                ],
-                subject,
-                htmlContent,
-                textContent: textContent || subject,
-            }),
-        });
-
-        if (!response.ok) {
-            const errorData = await response.json();
-            console.error('Brevo API error:', errorData);
-            throw new Error(`Failed to send email: ${errorData.message || response.statusText}`);
-        }
-
-        return true;
-    } catch (error) {
-        console.error('Error sending email:', error);
-        return false;
+  try {
+    if (!BREVO_API_KEY) {
+      throw new Error('BREVO_API_KEY is not defined');
     }
+
+    const response = await fetch('https://api.brevo.com/v3/smtp/email', {
+      method: 'POST',
+      headers: {
+        'accept': 'application/json',
+        'api-key': BREVO_API_KEY,
+        'content-type': 'application/json',
+      },
+      body: JSON.stringify({
+        sender: {
+          email: SENDER_EMAIL,
+          name: "Let's Dance Academy",
+        },
+        to: [
+          {
+            email: to,
+          },
+        ],
+        subject,
+        htmlContent,
+        textContent: textContent || subject,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error('Brevo API error:', errorData);
+      throw new Error(`Failed to send email: ${errorData.message || response.statusText}`);
+    }
+
+    return true;
+  } catch (error) {
+    console.error('Error sending email:', error);
+    return false;
+  }
 }
 
 export function generateOTP(): string {
-    return Math.floor(100000 + Math.random() * 900000).toString();
+  return Math.floor(100000 + Math.random() * 900000).toString();
 }
 
 export async function sendPasswordResetOTP(email: string, otp: string, userName: string): Promise<boolean> {
-    const subject = 'Password Reset OTP - Let\'s Dance Academy';
+  const subject = 'Password Reset OTP - Let\'s Dance Academy';
 
-    const htmlContent = `
+  const htmlContent = `
     <!DOCTYPE html>
     <html>
     <head>
@@ -125,15 +125,15 @@ export async function sendPasswordResetOTP(email: string, otp: string, userName:
     </html>
   `;
 
-    const textContent = `Hello ${userName},\n\nYour password reset OTP is: ${otp}\n\nThis OTP will expire in 10 minutes.\n\nIf you didn't request this, please ignore this email.`;
+  const textContent = `Hello ${userName},\n\nYour password reset OTP is: ${otp}\n\nThis OTP will expire in 10 minutes.\n\nIf you didn't request this, please ignore this email.`;
 
-    return sendEmail({ to: email, subject, htmlContent, textContent });
+  return sendEmail({ to: email, subject, htmlContent, textContent });
 }
 
 export async function sendWelcomeEmail(email: string, userName: string): Promise<boolean> {
-    const subject = 'Welcome to Let\'s Dance Academy!';
+  const subject = 'Welcome to Let\'s Dance Academy!';
 
-    const htmlContent = `
+  const htmlContent = `
     <!DOCTYPE html>
     <html>
     <head>
@@ -188,17 +188,17 @@ export async function sendWelcomeEmail(email: string, userName: string): Promise
     </html>
   `;
 
-    return sendEmail({ to: email, subject, htmlContent });
+  return sendEmail({ to: email, subject, htmlContent });
 }
 
 export async function sendAdminCreatedEmail(
-    email: string,
-    adminName: string,
-    temporaryPassword: string
+  email: string,
+  adminName: string,
+  temporaryPassword: string
 ): Promise<boolean> {
-    const subject = 'Your Admin Account - Let\'s Dance Academy';
+  const subject = 'Your Admin Account - Let\'s Dance Academy';
 
-    const htmlContent = `
+  const htmlContent = `
     <!DOCTYPE html>
     <html>
     <head>
@@ -267,5 +267,98 @@ export async function sendAdminCreatedEmail(
     </html>
   `;
 
-    return sendEmail({ to: email, subject, htmlContent });
+  return sendEmail({ to: email, subject, htmlContent });
+}
+
+export async function sendEnrollmentStatusEmail(
+  email: string,
+  userName: string,
+  status: 'active' | 'rejected',
+  courseTitle: string,
+  type: 'batch' | 'workshop'
+): Promise<boolean> {
+  const isAccepted = status === 'active';
+  const subject = isAccepted
+    ? `Enrollment Accepted: ${courseTitle} - Let's Dance Academy`
+    : `Enrollment Update: ${courseTitle} - Let's Dance Academy`;
+
+  const htmlContent = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <style>
+        body {
+          font-family: Arial, sans-serif;
+          line-height: 1.6;
+          color: #333;
+        }
+        .container {
+          max-width: 600px;
+          margin: 0 auto;
+          padding: 20px;
+          background-color: #f9f9f9;
+        }
+        .header {
+          background-color: #000;
+          color: #fff;
+          padding: 20px;
+          text-align: center;
+        }
+        .content {
+          background-color: #fff;
+          padding: 30px;
+          border-radius: 5px;
+          margin-top: 20px;
+        }
+        .status-badge {
+          display: inline-block;
+          padding: 10px 20px;
+          border-radius: 5px;
+          color: white;
+          font-weight: bold;
+          text-transform: uppercase;
+          background-color: ${isAccepted ? '#28a745' : '#dc3545'};
+          margin: 20px 0;
+        }
+        .footer {
+          text-align: center;
+          margin-top: 20px;
+          color: #666;
+          font-size: 12px;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="header">
+          <h1>Let's Dance Academy</h1>
+        </div>
+        <div class="content">
+          <h2>Hello ${userName},</h2>
+          <p>We are writing to update you on your enrollment status for <strong>${courseTitle}</strong>.</p>
+          
+          <div style="text-align: center;">
+            <div class="status-badge">
+              ${isAccepted ? 'Enrollment Accepted' : 'Enrollment Rejected'}
+            </div>
+          </div>
+
+          ${isAccepted
+      ? `<p>Congratulations! Your payment has been verified and your enrollment is now active. You can now access all the course materials and join the sessions.</p>
+               <p>Please log in to your dashboard to get started.</p>`
+      : `<p>Unfortunately, your enrollment request could not be processed at this time.</p>
+               <p>This may be due to an issue with verifying your payment details (UTR Number). Please verify your details and try again, or contact support if you believe this is an error.</p>`
+    }
+          
+          <p>If you have any questions, feel free to reply to this email.</p>
+        </div>
+        <div class="footer">
+          <p>&copy; ${new Date().getFullYear()} Let's Dance Academy. All rights reserved.</p>
+        </div>
+      </div>
+    </body>
+    </html>
+  `;
+
+  return sendEmail({ to: email, subject, htmlContent });
 }

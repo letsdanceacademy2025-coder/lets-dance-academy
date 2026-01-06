@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/lib/db';
 import Enrollment from '@/models/Enrollment';
 import { verifyToken } from '@/lib/jwt';
+import { sendEnrollmentStatusEmail } from '@/lib/email';
 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
     try {
@@ -57,6 +58,20 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
         }
 
         await enrollment.save();
+
+        if (status === 'active' || status === 'rejected') {
+            const courseTitle = enrollment.batchTitle || enrollment.workshopTitle || 'Course';
+            const type = enrollment.batch ? 'batch' : 'workshop';
+
+            // Run email in background
+            sendEnrollmentStatusEmail(
+                enrollment.userEmail,
+                enrollment.userName,
+                status,
+                courseTitle,
+                type
+            ).catch(err => console.error('Failed to send status email:', err));
+        }
 
         return NextResponse.json({ success: true, message: 'Enrollment status updated successfully' });
 
