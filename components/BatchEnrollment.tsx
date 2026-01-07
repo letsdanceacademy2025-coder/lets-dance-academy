@@ -4,6 +4,7 @@
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import Image from 'next/image';
 import { FaArrowRight, FaCheck, FaXmark } from 'react-icons/fa6';
 
 const branches = [
@@ -187,18 +188,25 @@ export default function BatchEnrollment({ batchId, price, pricingType }: { batch
                         {step === 2 && (
                             <div className="space-y-6 mb-8">
                                 <div className="bg-gray-50 p-6 rounded-xl border border-gray-200 text-center">
-                                    <div className="w-48 h-48 bg-gray-200 mx-auto mb-4 flex items-center justify-center text-gray-400 font-bold border-2 border-dashed border-gray-300">
-                                        UPI QR CODE
+                                    <div className="mx-auto mb-4 flex items-center justify-center">
+                                        <Image
+                                            src="/qr.jpg"
+                                            alt="UPI QR Code"
+                                            width={192}
+                                            height={192}
+                                            className="w-48 h-48 object-contain"
+                                        />
                                     </div>
                                     <p className="font-bold text-sm uppercase mb-1">Scan to Pay: {price}</p>
-                                    <p className="text-xs text-gray-500">Lets Dance Academy</p>
+                                    <p className="text-xs text-gray-500">Pratiksha Mane</p>
                                 </div>
 
                                 <div className="bg-blue-50 p-4 rounded-lg border border-blue-100 text-sm">
                                     <h4 className="font-bold uppercase text-blue-800 mb-2">Bank Details</h4>
-                                    <p>Account Name: <span className="font-bold">Lets Dance Academy</span></p>
-                                    <p>Account No: <span className="font-bold">1234567890</span></p>
-                                    <p>IFSC: <span className="font-bold">SBIN0001234</span></p>
+                                    <p>Account Name: <span className="font-bold">Pratiksha Mane</span></p>
+                                    <p>Account No: <span className="font-bold">35033873376</span></p>
+                                    <p>IFSC: <span className="font-bold">SBIN0013262</span></p>
+                                    <p>UPI ID: <span className="font-bold">pratiksha.dhanaji@ybl</span></p>
                                 </div>
 
                                 <button
